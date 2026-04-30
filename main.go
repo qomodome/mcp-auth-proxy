@@ -132,6 +132,8 @@ type proxyRunnerFunc func(
 	googleClientSecret string,
 	googleAllowedUsers []string,
 	googleAllowedWorkspaces []string,
+	githubURL string,
+	githubAPIURL string,
 	githubClientID string,
 	githubClientSecret string,
 	githubAllowedUsers []string,
@@ -182,6 +184,8 @@ func newRootCommand(run proxyRunnerFunc) *cobra.Command {
 	var googleClientSecret string
 	var googleAllowedUsers string
 	var googleAllowedWorkspaces string
+	var githubURL string
+	var githubAPIURL string
 	var githubClientID string
 	var githubClientSecret string
 	var githubAllowedUsers string
@@ -304,6 +308,8 @@ func newRootCommand(run proxyRunnerFunc) *cobra.Command {
 				googleClientSecret,
 				googleAllowedUsersList,
 				googleAllowedWorkspacesList,
+				githubURL,
+				githubAPIURL,
 				githubClientID,
 				githubClientSecret,
 				githubAllowedUsersList,
@@ -355,6 +361,8 @@ func newRootCommand(run proxyRunnerFunc) *cobra.Command {
 	rootCmd.Flags().StringVar(&googleAllowedWorkspaces, "google-allowed-workspaces", getEnvWithDefault("GOOGLE_ALLOWED_WORKSPACES", ""), "Comma-separated list of allowed Google workspaces")
 
 	// GitHub OAuth configuration
+	rootCmd.Flags().StringVar(&githubURL, "github-url", getEnvWithDefault("GITHUB_URL", ""), "GitHub custom instance URL (eg https://github.example.com)")
+	rootCmd.Flags().StringVar(&githubAPIURL, "github-api-url", getEnvWithDefault("GITHUB_API_URL", ""), "GitHub custom API URL (eg https://github.example.com/api/v3).")
 	rootCmd.Flags().StringVar(&githubClientID, "github-client-id", getEnvWithDefault("GITHUB_CLIENT_ID", ""), "GitHub OAuth client ID")
 	rootCmd.Flags().StringVar(&githubClientSecret, "github-client-secret", getEnvWithDefault("GITHUB_CLIENT_SECRET", ""), "GitHub OAuth client secret")
 	rootCmd.Flags().StringVar(&githubAllowedUsers, "github-allowed-users", getEnvWithDefault("GITHUB_ALLOWED_USERS", ""), "Comma-separated list of allowed GitHub users (usernames)")

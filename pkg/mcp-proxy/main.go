@@ -54,6 +54,8 @@ func Run(
 	googleClientSecret string,
 	googleAllowedUsers []string,
 	googleAllowedWorkspaces []string,
+	githubURL string,
+	githubAPIURL string,
 	githubClientID string,
 	githubClientSecret string,
 	githubAllowedUsers []string,
@@ -243,7 +245,7 @@ func Run(
 
 	// Add GitHub provider if configured
 	if githubClientID != "" && githubClientSecret != "" {
-		githubProvider, err := auth.NewGithubProvider(githubClientID, githubClientSecret, externalURL, githubAllowedUsers, githubAllowedOrgs)
+		githubProvider, err := auth.NewGithubProvider(githubURL, githubAPIURL, githubClientID, githubClientSecret, externalURL, githubAllowedUsers, githubAllowedOrgs)
 		if err != nil {
 			return fmt.Errorf("failed to create GitHub provider: %w", err)
 		}

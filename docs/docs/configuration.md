@@ -48,10 +48,14 @@ Complete reference for all MCP Auth Proxy configuration options.
 
 | Option                   | Environment Variable   | Default | Description                                                                                                                      |
 | ------------------------ | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `--github-url`           | `GITHUB_URL`           | -       | GitHub custom instance URL                                                                                                       |
+| `--github-api-url`       | `GITHUB_API_URL`       | -       | GitHub custom API URL                                                                                                            |
 | `--github-client-id`     | `GITHUB_CLIENT_ID`     | -       | GitHub OAuth client ID                                                                                                           |
 | `--github-client-secret` | `GITHUB_CLIENT_SECRET` | -       | GitHub OAuth client secret                                                                                                       |
 | `--github-allowed-users` | `GITHUB_ALLOWED_USERS` | -       | Comma-separated list of allowed GitHub users (usernames)                                                                         |
 | `--github-allowed-orgs`  | `GITHUB_ALLOWED_ORGS`  | -       | Comma-separated list of allowed GitHub organizations. You can also restrict access to specific teams using the format `Org:Team` |
+
+If using GitHub Enterprise Server or Cloud, set `--github-url` to the instance URL (eg `https://github.example.com`) and `--github-api-url` to the base of the instance's API URL (eg `https://github.example.com/api/v3`).
 
 #### Generic OIDC
 

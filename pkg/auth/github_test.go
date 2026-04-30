@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/github"
 )
 
 const (
@@ -19,8 +20,6 @@ const (
 )
 
 func setupGitHubTest(allowedUsers, allowedOrgs []string) (Provider, gin.IRoutes) {
-	p, _ := NewGithubProvider(TestGitHubClientID, TestGitHubClientSecret, TestGitHubExternalURL, allowedUsers, allowedOrgs)
-
 	gh := gin.New()
 	gh.POST("/login/oauth/access_token", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -28,16 +27,10 @@ func setupGitHubTest(allowedUsers, allowedOrgs []string) (Provider, gin.IRoutes)
 		})
 	})
 	tsgh := httptest.NewServer(gh)
-	gp := p.(*githubProvider)
-	gp.SetOAuth2Endpoint(oauth2.Endpoint{
-		AuthURL:       tsgh.URL + "/login/oauth/authorize",
-		TokenURL:      tsgh.URL + "/login/oauth/access_token",
-		DeviceAuthURL: tsgh.URL + "/login/device/code",
-	})
-
 	ghapi := gin.New()
 	tsghapi := httptest.NewServer(ghapi)
-	gp.SetApiEndpoint(tsghapi.URL)
+
+	p, _ := NewGithubProvider(tsgh.URL, tsghapi.URL, TestGitHubClientID, TestGitHubClientSecret, TestGitHubExternalURL, allowedUsers, allowedOrgs)
 
 	return p, ghapi
 }
@@ -173,4 +166,16 @@ func TestGitHubProviderAuthorization(t *testing.T) {
 			require.Equal(t, expect, ok)
 		})
 	}
+}
+
+func TestGitHubProviderDefaultEndpoints(t *testing.T) {
+	p, err := NewGithubProvider("", "", TestGitHubClientID, TestGitHubClientSecret, TestGitHubExternalURL, []string{}, []string{})
+	require.NoError(t, err)
+	gp := p.(*githubProvider)
+	// Default (from oauth2) endpoints are used
+	require.Equal(t, github.Endpoint.AuthURL, gp.oauth2.Endpoint.AuthURL)
+	require.Equal(t, github.Endpoint.TokenURL, gp.oauth2.Endpoint.TokenURL)
+	require.Equal(t, github.Endpoint.DeviceAuthURL, gp.oauth2.Endpoint.DeviceAuthURL)
+	// And the default github API
+	require.Equal(t, "https://api.github.com", gp.endpoint)
 }

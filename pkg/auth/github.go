@@ -21,7 +21,7 @@ type githubProvider struct {
 	allowedOrgs  []string
 }
 
-func NewGithubProvider(clientID, clientSecret, externalURL string, allowedUsers []string, allowedOrgs []string) (Provider, error) {
+func NewGithubProvider(oauthEndpoint, apiURL, clientID, clientSecret, externalURL string, allowedUsers []string, allowedOrgs []string) (Provider, error) {
 	r, err := url.JoinPath(externalURL, GitHubCallbackEndpoint)
 	if err != nil {
 		return nil, err
@@ -30,26 +30,41 @@ func NewGithubProvider(clientID, clientSecret, externalURL string, allowedUsers 
 	if len(allowedOrgs) > 0 {
 		scopes = append(scopes, "read:org")
 	}
+	if apiURL == "" {
+		apiURL = "https://api.github.com"
+	}
+	oauth2Endpoint := github.Endpoint
+	if oauthEndpoint != "" {
+		authURL, err := url.JoinPath(oauthEndpoint, "/login/oauth/authorize")
+		if err != nil {
+			return nil, err
+		}
+		tokenURL, err := url.JoinPath(oauthEndpoint, "/login/oauth/access_token")
+		if err != nil {
+			return nil, err
+		}
+		deviceAuthURL, err := url.JoinPath(oauthEndpoint, "/login/device/code")
+		if err != nil {
+			return nil, err
+		}
+		oauth2Endpoint = oauth2.Endpoint{
+			AuthURL:       authURL,
+			TokenURL:      tokenURL,
+			DeviceAuthURL: deviceAuthURL,
+		}
+	}
 	return &githubProvider{
-		endpoint: "https://api.github.com",
+		endpoint: apiURL,
 		oauth2: oauth2.Config{
 			ClientID:     clientID,
 			ClientSecret: clientSecret,
 			RedirectURL:  r,
 			Scopes:       scopes,
-			Endpoint:     github.Endpoint,
+			Endpoint:     oauth2Endpoint,
 		},
 		allowedUsers: allowedUsers,
 		allowedOrgs:  allowedOrgs,
 	}, nil
-}
-
-func (p *githubProvider) SetApiEndpoint(u string) {
-	p.endpoint = u
-}
-
-func (p *githubProvider) SetOAuth2Endpoint(cfg oauth2.Endpoint) {
-	p.oauth2.Endpoint = cfg
 }
 
 func (p *githubProvider) Name() string {
