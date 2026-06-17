@@ -12,11 +12,9 @@ ARG TARGETOS
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
     go build -trimpath -ldflags "-w -s" -o /app/bin/main .
 
-FROM debian:bookworm-slim
+FROM scratch
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl python3 python3-pip nodejs npm \
-    && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY --from=builder /app/bin/main /usr/local/bin/mcp-auth-proxy
 ENV DATA_PATH=/data
